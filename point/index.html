@@ -11,7 +11,7 @@
         }
         #map-canvas{
             width:100%;
-            height:100%;
+            height:90%;
         }
     </style>
     <script type="text/javascript"
@@ -37,43 +37,53 @@
                     mapOptions);
             var pos;
             if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(function(a){
-                  pos = a;
-              }, function(){});
+                navigator.geolocation.getCurrentPosition(function(a){
+                    pos = a;
+                    var first = true;
+                    var sql = new cartodb.SQL({ user: user });
+                    sql.execute("select name, description, ST_X(the_geom), ST_Y(the_geom), {{radius_field}} from {{table}} order by {{radius_field}} DESC", { table: table, radius_field: radius_field })
+                            .done(function(data) {
+                                _.each(data.rows, function(o){
+                                    var center = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude); //new google.maps.LatLng(o.st_y, o.st_x);
+                                    map.setCenter(center);
+                                    map.setZoom(11);
+                                    var radius = o.radius;
+
+                                    var opts = {
+                                        strokeColor: "#FF0000",
+                                        strokeOpacity: 0.8,
+                                        strokeWeight: 5,
+                                        fillColor: "#FF0000",
+                                        fillOpacity: 0.35,
+                                        map: map,
+                                        center: center,
+                                        radius: radius,
+                                        geodesic: true,
+                                        draggable: true
+                                    };
+
+                                    if (first == true){
+                                        opts.fillColor = "#ff9999";
+                                        opts.strokeWeight= 1;
+                                        first = false;
+                                    }
+                                    new google.maps.Circle(opts);
+                                });
+
+                                console.log(data.rows);
+                            })
+                            .error(function(errors) {
+                                // errors contains a list of errors
+                                console.log("error:" + err);
+                            })
+
+
+                }, function(){});
             } else {
-              console.log('not supported');
+                console.log('not supported');
             }
 
-            var sql = new cartodb.SQL({ user: user });
-            sql.execute("select name, description, ST_X(the_geom), ST_Y(the_geom), {{radius_field}} from {{table}} order by {{radius_field}} ASC", { table: table, radius_field: radius_field })
-                    .done(function(data) {
-                        _.each(data.rows, function(o){
-                            var center = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude); //new google.maps.LatLng(o.st_y, o.st_x);
-                            map.setCenter(center);
-                            map.setZoom(11);
-                            var radius = o.radius;
 
-                            var opts = {
-                                strokeColor: "#FF0000",
-                                strokeOpacity: 0.8,
-                                strokeWeight: 1,
-                                fillColor: "#FF0000",
-                                fillOpacity: 0.35,
-                                map: map,
-                                center: center,
-                                radius: radius,
-                                geodesic: true,
-                                draggable: true
-                            };
-                            new google.maps.Circle(opts);
-                        });
-
-                        console.log(data.rows);
-                    })
-                    .error(function(errors) {
-                        // errors contains a list of errors
-                        console.log("error:" + err);
-                    })
 
 
 
@@ -82,6 +92,7 @@
 
 </head>
 <body>
+<h1>Chicxulub crater, mexico vs 2013 DA14.</h1>
 <div id="map-canvas"></div>
 
 </body>
