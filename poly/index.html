@@ -67,33 +67,35 @@
 
 
                                         var mypoly = new google.maps.Polygon({
-                                                paths: poly,
-                                                strokeColor: '#FF0000',
-                                                strokeOpacity: 0.8,
-                                                strokeWeight: 3,
-                                                fillColor: '#FF0000',
-                                                fillOpacity: 0.35
+                                            paths: poly,
+                                            strokeColor: '#FF0000',
+                                            strokeOpacity: 0.8,
+                                            strokeWeight: 3,
+                                            fillColor: '#FF0000',
+                                            fillOpacity: 0.35,
+                                            geodesic: true,
+                                            draggable: true
 
+                                        });
+
+                                        mypoly.setMap(map);
                                     });
 
-                                    mypoly.setMap(map);
-                                });
-
-                    })
-                            .error(function(errors) {
-                                // errors contains a list of errors
-                                console.log("error:" + err);
-                            })
+                                })
+                                .error(function(errors) {
+                                    // errors contains a list of errors
+                                    console.log("error:" + err);
+                                })
 
 
 
-                });
+                    });
 
 
-            }, function(){});
-        } else {
-            console.log('not supported');
-        }
+                }, function(){});
+            } else {
+                console.log('not supported');
+            }
 
 
 
@@ -103,7 +105,7 @@
 
 </head>
 <body>
-<h1>Lake Tanganyika, Tanzania.</h1>
+<h1>How big is Lake Tanganyika, Tanzania? (draggable)</h1>
 <div id="map-canvas"></div>
 
 </body>
